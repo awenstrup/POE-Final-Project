@@ -8,6 +8,7 @@
 #define throttlePin 5 //column 2 on reciever side; left stick up/down
 #define steeringPin 6 //column 0 on reciever; right stick left/right
 
+//Min and max pulse lengths from reciever, used for mapping
 #define rawThrottleMin 1054
 #define rawThrottleMax 1888
 #define rawThrottleDeadZone 30
@@ -15,9 +16,11 @@
 #define rawSteeringMin 1052
 #define rawSteeringMax 1886
 
+//Min and max values to write to DC motors through motor shield
 #define throttleOutMin 0
 #define throttleOutMax 255
 
+//Min and max values to write to steering servo through motor shield
 #define steeringOutMin 50
 #define steeringOutMax 110
 
@@ -36,16 +39,22 @@ Servo steering;
 #define steeringServoPin 9
 
 //************Helper functions******************
-void readThrottle() {
+void readThrottle() { 
+  //rudimentary implimentation used pulseIn arduino function
+  //in future, either feed PWM though RC filter and analogRead, or use interupts
+  //to read PWM more efficiently
   rawThrottle = pulseIn(throttlePin, HIGH);
 }
 
 void readSteering() {
+  //rudimentary implimentation used pulseIn arduino function
+  //in future, either feed PWM though RC filter and analogRead, or use interupts
+  //to read PWM more efficiently
   rawSteering = pulseIn(steeringPin, HIGH);
 }
 
 void mapThrottle() { //Converts raw throttle data to output
-  //For week 1, return in range 0 to 100
+  //For week 1, return in range 0 to 255
   if (rawThrottle < (rawThrottleMin + rawThrottleDeadZone)) rawThrottle = rawThrottleMin;
   else if (rawThrottle > rawThrottleMax) rawThrottle = rawThrottleMax;
 
@@ -53,21 +62,27 @@ void mapThrottle() { //Converts raw throttle data to output
 }
 
 void mapSteering() { //Converts raw steering data to output
-  //For week 1, return between 60 and 120
+  //For week 1, return between 50 and 110
   if (rawSteering < rawSteeringMin) rawSteering = rawSteeringMin;
   else if (rawSteering > rawSteeringMax) rawSteering = rawSteeringMax;
 
   steeringOut = steeringOutMin + (rawSteering - rawSteeringMin) * (steeringOutMax - steeringOutMin) / (rawSteeringMax - rawSteeringMin);
-  //steeringOut = 80;
 }
 
-//************Debugging*****************8
+//************Debugging*****************
+void printSteering() {
+  char buff[32];
+  sprintf(buff, "Steering: %d", steeringOut);
+  Serial.println(buff);
+}
 
 //*************Setup and main loop**************
 void setup() {
+  //Set pins to receiver as input
   pinMode(throttlePin, INPUT);
   pinMode(steeringPin, INPUT);
-  
+
+  //Open serial port
   Serial.begin(9600);
 
   AFMS.begin();
@@ -80,23 +95,21 @@ void setup() {
 }
 
 void loop() {
+  //Read raw throttle and steering values from receiver
   readThrottle();
   readSteering();
 
+  //Map raw throttle and steering data to output values
   mapThrottle();
   mapSteering();
-  
-  //char buff[32];
-  //sprintf(buff, "Steering: %d", steeringOut);
-  //Serial.println(buff);
 
+  //Drive rear wheels
   drivingMotor1->setSpeed(throttleOut);
   drivingMotor1->run(BACKWARD);
   
   drivingMotor2->setSpeed(throttleOut);
   drivingMotor2->run(FORWARD);
-  
-  steering.write(steeringOut);
 
-  //delay(200);
+  //Update steering angle
+  steering.write(steeringOut);
 }
