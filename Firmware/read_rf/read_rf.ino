@@ -16,10 +16,10 @@
 #define rawSteeringMax 1886
 
 #define throttleOutMin 0
-#define throttleOutMax 100
+#define throttleOutMax 255
 
-#define steeringOutMin 0
-#define steeringOutMax 0
+#define steeringOutMin 50
+#define steeringOutMax 110
 
 unsigned long rawThrottle;
 unsigned long rawSteering;
@@ -28,7 +28,9 @@ int throttleOut;
 int steeringOut;
 
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
-Adafruit_DCMotor *drivingMotor = AFMS.getMotor(1);
+Adafruit_DCMotor *drivingMotor1 = AFMS.getMotor(1); //motor 1 on shield
+Adafruit_DCMotor *drivingMotor2 = AFMS.getMotor(2); //motor 2 on shield
+
 
 Servo steering;
 #define steeringServoPin 9
@@ -39,7 +41,7 @@ void readThrottle() {
 }
 
 void readSteering() {
-  rawThrottle = pulseIn(throttlePin, HIGH);
+  rawSteering = pulseIn(steeringPin, HIGH);
 }
 
 void mapThrottle() { //Converts raw throttle data to output
@@ -51,9 +53,12 @@ void mapThrottle() { //Converts raw throttle data to output
 }
 
 void mapSteering() { //Converts raw steering data to output
-  //For Week 1, return range -50 to 50
-  //- values turn left, + values turn right
-  steeringOut = 0;
+  //For week 1, return between 60 and 120
+  if (rawSteering < rawSteeringMin) rawSteering = rawSteeringMin;
+  else if (rawSteering > rawSteeringMax) rawSteering = rawSteeringMax;
+
+  steeringOut = steeringOutMin + (rawSteering - rawSteeringMin) * (steeringOutMax - steeringOutMin) / (rawSteeringMax - rawSteeringMin);
+  //steeringOut = 80;
 }
 
 //************Debugging*****************8
@@ -61,26 +66,37 @@ void mapSteering() { //Converts raw steering data to output
 //*************Setup and main loop**************
 void setup() {
   pinMode(throttlePin, INPUT);
+  pinMode(steeringPin, INPUT);
   
   Serial.begin(9600);
 
   AFMS.begin();
-  drivingMotor->setSpeed(throttleOut);
+  drivingMotor1->setSpeed(0);
+  drivingMotor2->setSpeed(0);
 
-  steering.attach(steeringServoPin);
+  steering.attach(9);
 
-  delay(1000);
+  delay(500);
 }
 
 void loop() {
   readThrottle();
   readSteering();
-  char buff[32];
-  sprintf(buff, "Pin reading: %d", rawThrottle);
-  Serial.println(buff);
 
-  drivingMotor->setSpeed(throttleOut);
-  //steering.write(steeringOut);
+  mapThrottle();
+  mapSteering();
   
-  delay(500);
+  //char buff[32];
+  //sprintf(buff, "Steering: %d", steeringOut);
+  //Serial.println(buff);
+
+  drivingMotor1->setSpeed(throttleOut);
+  drivingMotor1->run(BACKWARD);
+  
+  drivingMotor2->setSpeed(throttleOut);
+  drivingMotor2->run(FORWARD);
+  
+  steering.write(steeringOut);
+
+  //delay(200);
 }
