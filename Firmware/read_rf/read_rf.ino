@@ -17,7 +17,7 @@
 #define rawSteeringMax 1886
 
 //Min and max values to write to DC motors through motor shield
-#define throttleOutMin 0
+#define throttleOutMin -255
 #define throttleOutMax 255
 
 //Min and max values to write to steering servo through motor shield
@@ -55,7 +55,10 @@ void readSteering() {
 
 void mapThrottle() { //Converts raw throttle data to output
   //For week 1, return in range 0 to 255
-  if (rawThrottle < (rawThrottleMin + rawThrottleDeadZone)) rawThrottle = rawThrottleMin;
+  int rawThrottleMidpoint = (rawThrottleMax + rawThrottleMin) / 2;
+
+  if (abs(rawThrottle - rawThrottleMidpoint) < rawThrottleDeadZone) rawThrottle = rawThrottleMidpoint;
+  else if (rawThrottle < rawThrottleMin) rawThrottle = rawThrottleMin;
   else if (rawThrottle > rawThrottleMax) rawThrottle = rawThrottleMax;
 
   throttleOut = (rawThrottle - rawThrottleMin) * (throttleOutMax - throttleOutMin) / (rawThrottleMax - rawThrottleMin);
@@ -104,11 +107,11 @@ void loop() {
   mapSteering();
 
   //Drive rear wheels
-  drivingMotor1->setSpeed(throttleOut);
-  drivingMotor1->run(BACKWARD);
+  drivingMotor1->setSpeed(throttleOut>0 ? throttleOut : -throttleOut);
+  drivingMotor1->run(throttleOut>0 ? BACKWARD : FORWARD);
   
-  drivingMotor2->setSpeed(throttleOut);
-  drivingMotor2->run(FORWARD);
+  drivingMotor2->setSpeed(throttleOut>0 ? throttleOut : -throttleOut);
+  drivingMotor2->run(throttleOut>0 ? FORWARD : BACKWARD);
 
   //Update steering angle
   steering.write(steeringOut);
