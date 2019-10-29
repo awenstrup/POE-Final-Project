@@ -11,7 +11,7 @@
 //Min and max pulse lengths from reciever, used for mapping
 #define rawThrottleMin 1054
 #define rawThrottleMax 1888
-#define rawThrottleDeadZone 30
+#define rawThrottleDeadZone 80
 
 #define rawSteeringMin 1052
 #define rawSteeringMax 1886
@@ -24,8 +24,13 @@
 #define steeringOutMin 50
 #define steeringOutMax 110
 
+unsigned long timer;
+
 unsigned long rawThrottle;
 unsigned long rawSteering;
+
+boolean throtPinState = false;
+boolean steerPinState = false;
 
 int throttleOut;
 int steeringOut;
@@ -37,6 +42,40 @@ Adafruit_DCMotor *drivingMotor2 = AFMS.getMotor(2); //motor 2 on shield
 
 Servo steering;
 #define steeringServoPin 9
+
+//************Setup*****************
+void init_timer() { //addapted from https://www.instructables.com/id/Arduino-Timer-Interrupts/
+  TCCR2A = 0;// set entire TCCR2A register to 0
+  TCCR2B = 0;// same for TCCR2B
+  TCNT2  = 0;//initialize counter value to 0
+  // set compare match register for 1Mhz increments
+  OCR2A = 1;// matches every other time
+  // turn on CTC mode
+  TCCR2A |= (1 << WGM21);
+  // Set CS21 bit for 8 prescaler
+  TCCR2B |= (1 << CS21);   
+  // enable timer compare interrupt
+  TIMSK2 |= (1 << OCIE2A);
+}
+
+void init_pcint() {
+  //Enables interupts on shutdown sense pins
+  PCICR |= 0b00000100; //enables PCINTs 16-23 
+  PCMSK0 |= 0b01100000; //enables PCINT21 and PCINT22
+}
+
+
+//*************Interupts*************
+ISR(TIMER0_COMPA_vect) {
+    //count 1 million times/second
+    timer++;
+}
+
+ISR(PCINT2_vect) {
+    //TODO
+}
+
+
 
 //************Helper functions******************
 void readThrottle() { 
@@ -61,7 +100,7 @@ void mapThrottle() { //Converts raw throttle data to output
   else if (rawThrottle < rawThrottleMin) rawThrottle = rawThrottleMin;
   else if (rawThrottle > rawThrottleMax) rawThrottle = rawThrottleMax;
 
-  throttleOut = (rawThrottle - rawThrottleMin) * (throttleOutMax - throttleOutMin) / (rawThrottleMax - rawThrottleMin);
+  throttleOut = throttleOutMin + (rawThrottle - rawThrottleMin) * (throttleOutMax - throttleOutMin) / (rawThrottleMax - rawThrottleMin);
 }
 
 void mapSteering() { //Converts raw steering data to output
@@ -73,10 +112,15 @@ void mapSteering() { //Converts raw steering data to output
 }
 
 //************Debugging*****************
-void printSteering() {
+void printThrottle() {
   char buff[32];
-  sprintf(buff, "Steering: %d", steeringOut);
+  sprintf(buff, "Raw Throttle: %d", rawThrottle);
   Serial.println(buff);
+
+  sprintf(buff, "Throttle Out: %d", throttleOut);
+  Serial.println(buff);
+
+  delay(400);
 }
 
 //*************Setup and main loop**************
@@ -112,6 +156,8 @@ void loop() {
   
   drivingMotor2->setSpeed(throttleOut>0 ? throttleOut : -throttleOut);
   drivingMotor2->run(throttleOut>0 ? FORWARD : BACKWARD);
+
+  //printThrottle();
 
   //Update steering angle
   steering.write(steeringOut);
