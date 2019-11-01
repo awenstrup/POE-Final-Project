@@ -24,13 +24,22 @@
 #define steeringOutMin 50
 #define steeringOutMax 110
 
-unsigned long timer;
+unsigned long timer = 0;
 
 unsigned long rawThrottle;
 unsigned long rawSteering;
 
+//Stores the current state of the throttle and steering pins
 boolean throtPinState = false;
 boolean steerPinState = false;
+
+//Set to true when a pin's state is changed
+boolean throttleUpdate = false;
+boolean steeringUpdate = false;
+
+//Stores the time at which the pin went high
+unsigned long steerStartTime;
+unsigned long throtStartTime;
 
 int throttleOut;
 int steeringOut;
@@ -44,21 +53,18 @@ Servo steering;
 #define steeringServoPin 9
 
 //************Setup*****************
-void init_timer() { //addapted from https://www.instructables.com/id/Arduino-Timer-Interrupts/
+void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Timer-Interrupts/
   TCCR2A = 0;// set entire TCCR2A register to 0
-  TCCR2B = 0;// same for TCCR2B
-  TCNT2  = 0;//initialize counter value to 0
-  // set compare match register for 1Mhz increments
-  OCR2A = 1;// matches every other time
+  OCR2A = 255;// matches every 20 times
   // turn on CTC mode
   TCCR2A |= (1 << WGM21);
-  // Set CS21 bit for 8 prescaler
-  TCCR2B |= (1 << CS21);   
+  // Set CS21 bit for 1024 prescaler
+  TCCR2B |= 0b00000111;   
   // enable timer compare interrupt
   TIMSK2 |= (1 << OCIE2A);
 }
 
-void init_pcint() {
+void initPCINT() {
   //Enables interupts on shutdown sense pins
   PCICR |= 0b00000100; //enables PCINTs 16-23 
   PCMSK0 |= 0b01100000; //enables PCINT21 and PCINT22
@@ -66,13 +72,18 @@ void init_pcint() {
 
 
 //*************Interupts*************
-ISR(TIMER0_COMPA_vect) {
-    //count 1 million times/second
+ISR(TIMER2_COMPA_vect) {
+    //count 800,000 times/second
     timer++;
 }
 
 ISR(PCINT2_vect) {
-    //TODO
+  boolean t1 = digitalRead(throttlePin);
+  boolean t2 = digitalRead(steeringPin);
+  throttleUpdate = (throtPinState != t1);
+  steeringUpdate = (steerPinState != t2);
+  throtPinState = t1;
+  steerPinState = t2;
 }
 
 
@@ -82,14 +93,34 @@ void readThrottle() {
   //rudimentary implimentation used pulseIn arduino function
   //in future, either feed PWM though RC filter and analogRead, or use interupts
   //to read PWM more efficiently
-  rawThrottle = pulseIn(throttlePin, HIGH);
+  //rawThrottle = pulseIn(throttlePin, HIGH);
+
+  if (throttleUpdate) {
+    if (throtPinState) {
+      throtStartTime = timer;
+    }
+    else {
+      rawThrottle = timer - throtStartTime;
+    }
+    throttleUpdate = false;
+  }
 }
 
 void readSteering() {
   //rudimentary implimentation used pulseIn arduino function
   //in future, either feed PWM though RC filter and analogRead, or use interupts
   //to read PWM more efficiently
-  rawSteering = pulseIn(steeringPin, HIGH);
+  //rawSteering = pulseIn(steeringPin, HIGH);
+
+  if (steeringUpdate) {
+    if (steerPinState) {
+      steerStartTime = timer;
+    }
+    else {
+      rawSteering = timer - steerStartTime;
+    }
+    steeringUpdate = false;
+  }
 }
 
 void mapThrottle() { //Converts raw throttle data to output
@@ -119,8 +150,6 @@ void printThrottle() {
 
   sprintf(buff, "Throttle Out: %d", throttleOut);
   Serial.println(buff);
-
-  delay(400);
 }
 
 //*************Setup and main loop**************
@@ -138,10 +167,13 @@ void setup() {
 
   steering.attach(9);
 
-  delay(500);
+  initTimer();
+  initPCINT();
+  sei();
 }
 
 void loop() {
+  if (timer % 200000 == 0) {
   //Read raw throttle and steering values from receiver
   readThrottle();
   readSteering();
@@ -150,15 +182,18 @@ void loop() {
   mapThrottle();
   mapSteering();
 
-  //Drive rear wheels
-  drivingMotor1->setSpeed(throttleOut>0 ? throttleOut : -throttleOut);
-  drivingMotor1->run(throttleOut>0 ? BACKWARD : FORWARD);
+  printThrottle;
+  if (false) {
+
+    //Drive rear wheels
+    drivingMotor1->setSpeed(throttleOut>0 ? throttleOut : -throttleOut);
+    drivingMotor1->run(throttleOut>0 ? BACKWARD : FORWARD);
   
-  drivingMotor2->setSpeed(throttleOut>0 ? throttleOut : -throttleOut);
-  drivingMotor2->run(throttleOut>0 ? FORWARD : BACKWARD);
+    drivingMotor2->setSpeed(throttleOut>0 ? throttleOut : -throttleOut);
+    drivingMotor2->run(throttleOut>0 ? FORWARD : BACKWARD);
 
-  //printThrottle();
-
-  //Update steering angle
-  steering.write(steeringOut);
+    //Update steering angle
+    steering.write(steeringOut);
+  }
+}
 }
