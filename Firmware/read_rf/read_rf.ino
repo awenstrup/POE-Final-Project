@@ -1,12 +1,10 @@
 //***********Include libraries***************
-#include <Wire.h>
-#include <Adafruit_MotorShield.h>
-#include "utility/Adafruit_MS_PWMServoDriver.h"
 #include <Servo.h>
 
 //*************Define constants and global variables***************
-#define throttlePin 5 //column 2 on reciever side; left stick up/down
+#define throttlePin 5 //column 1 on reciever side; left stick up/down
 #define steeringPin 6 //column 0 on reciever; right stick left/right
+#define esc1 10 //ESC PWM coming from pin 7
 
 //Min and max pulse lengths from reciever, used for mapping
 #define rawThrottleMin 1054
@@ -17,8 +15,8 @@
 #define rawSteeringMax 1886
 
 //Min and max values to write to DC motors through motor shield
-#define throttleOutMin 0
-#define throttleOutMax 255
+#define throttleOutMin 10
+#define throttleOutMax 100
 
 //Min and max values to write to steering servo through motor shield
 #define steeringOutMin 50
@@ -29,11 +27,6 @@ unsigned long rawSteering;
 
 int throttleOut;
 int steeringOut;
-
-Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
-Adafruit_DCMotor *drivingMotor1 = AFMS.getMotor(1); //motor 1 on shield
-Adafruit_DCMotor *drivingMotor2 = AFMS.getMotor(2); //motor 2 on shield
-
 
 Servo steering;
 #define steeringServoPin 9
@@ -58,7 +51,7 @@ void mapThrottle() { //Converts raw throttle data to output
   if (rawThrottle < (rawThrottleMin + rawThrottleDeadZone)) rawThrottle = rawThrottleMin;
   else if (rawThrottle > rawThrottleMax) rawThrottle = rawThrottleMax;
 
-  throttleOut = (rawThrottle - rawThrottleMin) * (throttleOutMax - throttleOutMin) / (rawThrottleMax - rawThrottleMin);
+  throttleOut = throttleOutMin + (rawThrottle - rawThrottleMin) * (throttleOutMax - throttleOutMin) / (rawThrottleMax - rawThrottleMin);
 }
 
 void mapSteering() { //Converts raw steering data to output
@@ -70,10 +63,14 @@ void mapSteering() { //Converts raw steering data to output
 }
 
 //************Debugging*****************
-void printSteering() {
+void printThrottle() {
   char buff[32];
-  sprintf(buff, "Steering: %d", steeringOut);
+  sprintf(buff, "Throttle (raw): %d", rawThrottle);
   Serial.println(buff);
+
+  sprintf(buff, "Throttle (out): %d", throttleOut);
+  Serial.println(buff);
+  delay(300);
 }
 
 //*************Setup and main loop**************
@@ -82,13 +79,13 @@ void setup() {
   pinMode(throttlePin, INPUT);
   pinMode(steeringPin, INPUT);
 
+  //Set ESC pins as output
+  pinMode(esc1, OUTPUT);
+
   //Open serial port
   Serial.begin(9600);
 
-  AFMS.begin();
-  drivingMotor1->setSpeed(0);
-  drivingMotor2->setSpeed(0);
-
+  //Attach steering servo
   steering.attach(9);
 
   delay(500);
@@ -104,12 +101,10 @@ void loop() {
   mapSteering();
 
   //Drive rear wheels
-  drivingMotor1->setSpeed(throttleOut);
-  drivingMotor1->run(BACKWARD);
-  
-  drivingMotor2->setSpeed(throttleOut);
-  drivingMotor2->run(FORWARD);
+  analogWrite(esc1, 10);
 
   //Update steering angle
   steering.write(steeringOut);
+
+  //printThrottle();
 }
