@@ -25,9 +25,10 @@
 #define steeringOutMax 110
 
 unsigned long timer = 0;
+boolean go = false;
 
-unsigned long rawThrottle;
-unsigned long rawSteering;
+unsigned long rawThrottle = 0;
+unsigned long rawSteering = 0;
 
 //Stores the current state of the throttle and steering pins
 boolean throtPinState = false;
@@ -41,8 +42,8 @@ boolean steeringUpdate = false;
 unsigned long steerStartTime;
 unsigned long throtStartTime;
 
-int throttleOut;
-int steeringOut;
+int throttleOut = 0;
+int steeringOut = 80;
 
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 Adafruit_DCMotor *drivingMotor1 = AFMS.getMotor(1); //motor 1 on shield
@@ -55,7 +56,7 @@ Servo steering;
 //************Setup*****************
 void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Timer-Interrupts/
   TCCR2A = 0;// set entire TCCR2A register to 0
-  OCR2A = 255;// matches every 20 times
+  OCR2A = 255;// matches every 255 times
   // turn on CTC mode
   TCCR2A |= (1 << WGM21);
   // Set CS21 bit for 1024 prescaler
@@ -67,7 +68,7 @@ void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Time
 void initPCINT() {
   //Enables interupts on shutdown sense pins
   PCICR |= 0b00000100; //enables PCINTs 16-23 
-  PCMSK0 |= 0b01100000; //enables PCINT21 and PCINT22
+  PCMSK2 |= 0b01100000; //enables PCINT21 and PCINT22
 }
 
 
@@ -75,6 +76,7 @@ void initPCINT() {
 ISR(TIMER2_COMPA_vect) {
     //count 800,000 times/second
     timer++;
+    if (timer % 20 == 0) go = true;
 }
 
 ISR(PCINT2_vect) {
@@ -84,6 +86,7 @@ ISR(PCINT2_vect) {
   steeringUpdate = (steerPinState != t2);
   throtPinState = t1;
   steerPinState = t2;
+  digitalWrite(13, !digitalRead(13));
 }
 
 
@@ -145,10 +148,7 @@ void mapSteering() { //Converts raw steering data to output
 //************Debugging*****************
 void printThrottle() {
   char buff[32];
-  sprintf(buff, "Raw Throttle: %d", rawThrottle);
-  Serial.println(buff);
-
-  sprintf(buff, "Throttle Out: %d", throttleOut);
+  sprintf(buff, "Raw throttle: %d", timer);
   Serial.println(buff);
 }
 
@@ -157,6 +157,10 @@ void setup() {
   //Set pins to receiver as input
   pinMode(throttlePin, INPUT);
   pinMode(steeringPin, INPUT);
+
+  //Set pin 13 as debugging LED
+  pinMode(9, OUTPUT);
+  pinMode(13, OUTPUT);
 
   //Open serial port
   Serial.begin(9600);
@@ -173,7 +177,8 @@ void setup() {
 }
 
 void loop() {
-  if (timer % 200000 == 0) {
+  if (go) {
+  go = false;
   //Read raw throttle and steering values from receiver
   readThrottle();
   readSteering();
@@ -181,19 +186,17 @@ void loop() {
   //Map raw throttle and steering data to output values
   mapThrottle();
   mapSteering();
-
-  printThrottle;
-  if (false) {
-
-    //Drive rear wheels
-    drivingMotor1->setSpeed(throttleOut>0 ? throttleOut : -throttleOut);
-    drivingMotor1->run(throttleOut>0 ? BACKWARD : FORWARD);
   
-    drivingMotor2->setSpeed(throttleOut>0 ? throttleOut : -throttleOut);
-    drivingMotor2->run(throttleOut>0 ? FORWARD : BACKWARD);
+  //Drive rear wheels
+  drivingMotor1->setSpeed(throttleOut>0 ? throttleOut : -throttleOut);
+  drivingMotor1->run(throttleOut>0 ? BACKWARD : FORWARD);
+  
+  drivingMotor2->setSpeed(throttleOut>0 ? throttleOut : -throttleOut);
+  drivingMotor2->run(throttleOut>0 ? FORWARD : BACKWARD);
 
-    //Update steering angle
-    steering.write(steeringOut);
+  //Update steering angle
+  steering.write(steeringOut);
+
+  digitalWrite(9, !digitalRead(9));
   }
-}
 }
