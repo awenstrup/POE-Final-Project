@@ -101,7 +101,7 @@ void loop() {
   mapSteering();
 
   //Drive rear wheels
-  analogWrite(esc1, 10);
+  analogWrite(esc1, throttleOut);
 
   //Update steering angle
   steering.write(steeringOut);
