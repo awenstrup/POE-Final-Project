@@ -31,6 +31,41 @@ int steeringOut;
 Servo steering;
 #define steeringServoPin 9
 
+//************Setup*****************
+void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Timer-Interrupts/
+  TCCR2A = 0;// set entire TCCR2A register to 0
+  OCR2A = 255;// matches every 255 times
+  // turn on CTC mode
+  TCCR2A |= (1 << WGM21);
+  // Set CS21 bit for 1024 prescaler
+  TCCR2B |= 0b00000111;
+  // enable timer compare interrupt
+  TIMSK2 |= (1 << OCIE2A);
+}
+
+void initPCINT() {
+  //Enables interupts on shutdown sense pins
+  PCICR |= 0b00000100; //enables PCINTs 16-23, 0-7
+  PCMSK0 |= 0b00000001; //enables PCINT0
+  PCMSK2 |= 0b01000000; //enables PCINT22
+}
+
+
+//*************Interupts*************
+ISR(TIMER2_COMPA_vect) {
+    //count 800,000 times/second
+    timer++;
+    if (timer % 20 == 0) go = true;
+}
+
+ISR(PCINT0_vect) {
+  
+}
+
+ISR(PCINT2_vect) {
+  
+}
+
 //************Helper functions******************
 void readThrottle() { 
   //rudimentary implimentation used pulseIn arduino function
