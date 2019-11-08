@@ -2,8 +2,8 @@
 #include <Servo.h>
 
 //*************Define constants and global variables***************
-#define throttlePin 5 //column 1 on reciever side; left stick up/down
-#define steeringPin 6 //column 0 on reciever; right stick left/right
+#define throttlePin 8 //PB0; PCINT0; column 1 on reciever side; left stick up/down
+#define steeringPin 6 //PD6; PCINT22; column 0 on reciever; right stick left/right
 #define esc1 10 //ESC PWM coming from pin 7
 
 //Min and max pulse lengths from reciever, used for mapping
