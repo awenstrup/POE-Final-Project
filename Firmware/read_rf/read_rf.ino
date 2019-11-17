@@ -54,11 +54,11 @@ Servo rearMotor;
 //************Setup*****************
 void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Timer-Interrupts/
   TCCR2A = 0;// set entire TCCR2A register to 0
-  OCR2A = 1;// matches every 255 times
+  OCR2A = 244;// 64 hz
   // turn on CTC mode
   TCCR2A |= (1 << WGM21);
-  // Set CS21 bit for 8 prescaler
-  TCCR2B |= 0b00000010;   
+  // Set CS21 bit for 1024 prescaler
+  TCCR2B |= 0b00000111;   
   // enable timer compare interrupt
   TIMSK2 |= (1 << OCIE2A);
 }
@@ -74,7 +74,7 @@ void initPCINT() {
 //*************Interupts*************
 ISR(TIMER2_COMPA_vect) {
     timer++;
-    if (timer % 50000 == 0) go = true;
+    if (true) go = true;
 }
 
 ISR(PCINT0_vect) {
@@ -106,17 +106,18 @@ void readThrottle() {
   //rudimentary implimentation used pulseIn arduino function
   //in future, either feed PWM though RC filter and analogRead, or use interupts
   //to read PWM more efficiently
-  //rawThrottle = pulseIn(throttlePin, HIGH);
+  rawThrottle = pulseIn(throttlePin, HIGH);
 
-  throttleUpdate = true;
+  //throttleUpdate = true;
 }
 
 void readSteering() {
   //rudimentary implimentation used pulseIn arduino function
   //in future, either feed PWM though RC filter and analogRead, or use interupts
   //to read PWM more efficiently
-  //rawSteering = pulseIn(steeringPin, HIGH);
+  rawSteering = pulseIn(steeringPin, HIGH);
 
+  /*
   if (steeringUpdate) {
     if (steerPinState) {
       steerStartTime = timer;
@@ -126,6 +127,7 @@ void readSteering() {
     }
     steeringUpdate = false;
   }
+  */
 }
 
 void mapThrottle() { //Converts raw throttle data to output
