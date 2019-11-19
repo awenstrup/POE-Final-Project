@@ -37,9 +37,9 @@ int mappedSteering = 128; //always maps 0-255
 #define throttleOutMax 255
 
 //Min and max values to write to steering servo through motor shield
-#define steeringOutMin 50
 #define steeringCenter 80
-#define steeringOutMax 110
+#define steeringOutMax 30
+#define steeringSensitivity 0.2 //(0 means no steering at full throttle; 1 means full steering)
 
 int throttleOut = 0; //output
 int steeringOut = 80; //output
@@ -84,16 +84,9 @@ void readSteering() {
 }
 
 void mapThrottle() { //Converts raw throttle data to 0-255
-  /*With reverse
-  int rawThrottleMidpoint = (rawThrottleMax + rawThrottleMin) / 2;
-  if (abs(rawThrottle - rawThrottleMidpoint) < rawThrottleDeadZone) rawThrottle = rawThrottleMidpoint;
-  else if (rawThrottle < rawThrottleMin) rawThrottle = rawThrottleMin;
-  else if (rawThrottle > rawThrottleMax) rawThrottle = rawThrottleMax;
-  */
-
-  /*Without reverse*/
   if (rawThrottle < rawThrottleMin + rawThrottleDeadZone) rawThrottle = rawThrottleMin;
   else if (rawThrottle > rawThrottleMax) rawThrottle = rawThrottleMax;
+  
   mappedThrottle = mapLow + (rawThrottle - rawThrottleMin) * (mapHigh - mapLow) / (rawThrottleMax - rawThrottleMin);
 }
 
@@ -105,20 +98,18 @@ void mapSteering() { //Converts raw steering data to 0-255
 }
 
 void outputThrottle() {
-  int s = abs(128 - abs(128 - mappedSteering));
-  float steeringScaler = (0.5 + s/255.0); //scales throttle from 0.5 to 1x full throttle based on steering angle
-  throttleOut = (int) (mappedThrottle * 1);
+  //lol not anymore
 }
 
 void outputSteering() {
-  //float throttleScaler = (mappedThrottle * 1.0)/mapHigh;
-  steeringOut = steeringOutMin + (mappedSteering) * (steeringOutMax - steeringOutMin) / (255);
+  float throttleScaler = (mappedThrottle * (1.0-steeringSensitivity))/mapHigh;
+  steeringOut = (int) (steeringCenter + (throttleScaler + steeringSensitivity) * (steeringOutMax));
 }
 
 //************Debugging*****************
-void printThrottle() {
+void printSteering() {
   char buff[64];
-  sprintf(buff, "Throttle Out: %d", throttleOut);
+  sprintf(buff, "Steering Out: %d", steeringOut);
   Serial.println(buff);
 }
 
@@ -164,6 +155,6 @@ void loop() {
     //Update steering angle
     steering.write(steeringOut);
 
-    //lmaoprintThrottle();
+    printSteering();
   }
 }
