@@ -4,12 +4,13 @@
 //*************Define constants and global variables***************
 
 //***********Define pins***************
+//NOTE: Timer 2 is used for PWM on pins 3 and 11; do not fuck wit deez pinz
 #define throttlePin 8 //PB0; PCINT0; column 1 on reciever side; left stick up/down
-#define steeringPin 6 //PD6, PCINT22; column 0 on reciever; right stick left/right
+#define steeringPin 7 //PD6, PCINT22; column 0 on reciever; right stick left/right
 
-#define steeringServoPin 9
-#define frontMotorPin 10
-#define rearMotorPin 3 //set to 11 before running
+#define steeringServoPin 5
+#define frontMotorPin 6
+#define rearMotorPin 10 //set to 11 before running
 
 //****************Raw input values*********************
 uint32_t rawThrottle = 0; //length of pulses
@@ -37,6 +38,7 @@ int mappedSteering = 128; //always maps 0-255
 
 //Min and max values to write to steering servo through motor shield
 #define steeringOutMin 50
+#define steeringCenter 80
 #define steeringOutMax 110
 
 int throttleOut = 0; //output
@@ -65,7 +67,7 @@ void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Time
 //*************Interupts*************
 ISR(TIMER2_COMPA_vect) {
     timer++;
-    if (timer == 10) {
+    if (timer == 3) {
       timer = 0;
       go = true;
       //digitalWrite(13, !digitalRead(13));
@@ -105,13 +107,18 @@ void mapSteering() { //Converts raw steering data to 0-255
 void outputThrottle() {
   int s = abs(128 - abs(128 - mappedSteering));
   float steeringScaler = (0.5 + s/255.0); //scales throttle from 0.5 to 1x full throttle based on steering angle
-  throttleOut = (int) (mappedThrottle * steeringScaler);
+  throttleOut = (int) (mappedThrottle * 1);
+}
+
+void outputSteering() {
+  //float throttleScaler = (mappedThrottle * 1.0)/mapHigh;
+  steeringOut = steeringOutMin + (mappedSteering) * (steeringOutMax - steeringOutMin) / (255);
 }
 
 //************Debugging*****************
 void printThrottle() {
   char buff[64];
-  sprintf(buff, "Raw throttle: %d", throttleOut);
+  sprintf(buff, "Throttle Out: %d", throttleOut);
   Serial.println(buff);
 }
 
@@ -148,14 +155,15 @@ void loop() {
 
     //Remap throttle and steering data to output values
     outputThrottle();
+    outputSteering();
   
     //Drive rear wheels
     //frontMotor.write(throttleOut);
-    //rearMotor.write(throttleOut);
+    rearMotor.write(throttleOut);
 
     //Update steering angle
-    //steering.write(steeringOut);
+    steering.write(steeringOut);
 
-    printThrottle();
+    //lmaoprintThrottle();
   }
 }
