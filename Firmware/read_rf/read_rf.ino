@@ -21,8 +21,8 @@ uint32_t rawSteering = 0;
 #define rawThrottleMax 1988
 #define rawThrottleDeadZone 80
 
-#define rawSteeringMin 994
-#define rawSteeringMax 1987
+#define rawSteeringMin 1180
+#define rawSteeringMax 1988
 
 //******************Mapping values**************
 #define mapLow 0
@@ -37,12 +37,12 @@ int mappedSteering = 128; //always maps 0-255
 #define throttleOutMax 255
 
 //Min and max values to write to steering servo through motor shield
-#define steeringCenter 80
+#define steeringCenter 97
 #define steeringOutMax 30
-#define steeringSensitivity 0.2 //(0 means no steering at full throttle; 1 means full steering)
+const float steeringSensitivity = 0.8; //(0 means full steering at full throttle; 1 means no steering)
 
 int throttleOut = 0; //output
-int steeringOut = 80; //output
+int steeringOut = steeringCenter; //output
 
 //**************Other global definitions**************
 volatile int timer = 0;
@@ -99,11 +99,22 @@ void mapSteering() { //Converts raw steering data to 0-255
 
 void outputThrottle() {
   //lol not anymore
+  ;
 }
 
 void outputSteering() {
-  float throttleScaler = (mappedThrottle * (1.0-steeringSensitivity))/mapHigh;
-  steeringOut = (int) (steeringCenter + (throttleScaler + steeringSensitivity) * (steeringOutMax));
+  float throttleScaler = ((mapHigh-mappedThrottle) * (steeringSensitivity))/mapHigh;
+
+  char buff[64];
+  sprintf(buff, "scaler: %d", (int)(10*throttleScaler));
+  Serial.println(buff);
+  
+  int steeringDelta = (throttleScaler + 1 - steeringSensitivity) * (steeringOutMax) * ((mappedSteering - (mapHigh/2))/(mapHigh/2.0)) ;
+
+  sprintf(buff, "delta: %d", steeringDelta);
+  Serial.println(buff);
+  
+  steeringOut = (int) steeringCenter + steeringDelta;
 }
 
 //************Debugging*****************
@@ -145,7 +156,7 @@ void loop() {
     mapSteering();
 
     //Remap throttle and steering data to output values
-    outputThrottle();
+    //outputThrottle();
     outputSteering();
   
     //Drive rear wheels
@@ -155,6 +166,6 @@ void loop() {
     //Update steering angle
     steering.write(steeringOut);
 
-    printSteering();
+    //printSteering();
   }
 }
