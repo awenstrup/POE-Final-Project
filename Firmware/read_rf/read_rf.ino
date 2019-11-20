@@ -1,5 +1,10 @@
 //***********Include libraries***************
 #include <Servo.h>
+#include <SPI.h>
+#include <Adafruit_LSM9DS1.h>
+#include <Adafruit_Sensor.h>
+#include <SoftwareSerial.h>
+#include <stdio.h>
 
 //*************Define constants and global variables***************
 
@@ -11,6 +16,9 @@
 #define steeringServoPin 5
 #define frontMotorPin 6
 #define rearMotorPin 10 //set to 11 before running
+
+#define ssPin1 11
+#define ssPin2 12
 
 //****************Raw input values*********************
 uint32_t rawThrottle = 0; //length of pulses
@@ -44,6 +52,11 @@ const float steeringSensitivity = 0.8; //(0 means full steering at full throttle
 int throttleOut = 0; //output
 int steeringOut = steeringCenter; //output
 
+//******************Accelerometer Setup*************
+Adafruit_LSM9DS1 lsm = Adafruit_LSM9DS1();
+
+sensors_event_t a, m, g, temp;
+
 //**************Other global definitions**************
 volatile int timer = 0;
 boolean go = false;
@@ -51,6 +64,7 @@ boolean go = false;
 Servo steering;
 Servo frontMotor;
 Servo rearMotor;
+SoftwareSerial blue(ssPin1, ssPin2);
 
 //************Setup*****************
 void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Timer-Interrupts/
@@ -64,10 +78,19 @@ void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Time
   TIMSK2 |= (1 << OCIE2A);
 }
 
+void setupSensor()
+{
+  //Set the accelerometer range
+  lsm.setupAccel(lsm.LSM9DS1_ACCELRANGE_4G);
+
+  //Setup the gyroscope
+  lsm.setupGyro(lsm.LSM9DS1_GYROSCALE_500DPS);
+}
+
 //*************Interupts*************
 ISR(TIMER2_COMPA_vect) {
     timer++;
-    if (timer == 3) {
+    if (timer == 32) {
       timer = 0;
       go = true;
       //digitalWrite(13, !digitalRead(13));
@@ -105,16 +128,30 @@ void outputThrottle() {
 void outputSteering() {
   float throttleScaler = ((mapHigh-mappedThrottle) * (steeringSensitivity))/mapHigh;
 
+  /*
   char buff[64];
   sprintf(buff, "scaler: %d", (int)(10*throttleScaler));
   Serial.println(buff);
+  */
   
   int steeringDelta = (throttleScaler + 1 - steeringSensitivity) * (steeringOutMax) * ((mappedSteering - (mapHigh/2))/(mapHigh/2.0)) ;
 
+  /*
   sprintf(buff, "delta: %d", steeringDelta);
   Serial.println(buff);
+  */
   
   steeringOut = (int) steeringCenter + steeringDelta;
+}
+
+void readAccel() {
+  lsm.getEvent(&a, &m, &g, &temp);
+}
+
+void writeToBlue() {
+  blue.write("Acceleration (x)");
+  blue.write(a.acceleration.x);
+  blue.write("\n");
 }
 
 //************Debugging*****************
@@ -133,8 +170,11 @@ void setup() {
   //Set pin 13 as debugging LED
   //pinMode(13, OUTPUT);
 
-  //Open serial port
-  Serial.begin(9600);
+  //Open serial ports
+  Serial.begin(115200); //to accelerometer
+  blue.begin(9600);
+
+  Serial.println("Bluetooth port open");
 
   steering.attach(steeringServoPin);
   frontMotor.attach(frontMotorPin);
@@ -142,6 +182,16 @@ void setup() {
 
   initTimer();
   sei();
+
+  delay(500);
+  
+  if (!lsm.begin())
+  {
+    Serial.println("Oops ... unable to initialize the LSM9DS1. Check your wiring!");
+    while (1);
+  }
+  Serial.println("Found LSM9DS1 9DOF");
+  setupSensor();
 }
 
 void loop() {
@@ -166,6 +216,19 @@ void loop() {
     //Update steering angle
     steering.write(steeringOut);
 
-    //printSteering();
+    //Read accelerometer data
+    readAccel();
+
+    //Write to bluetooth module
+    blue.write("Acceleration (x)");
+ 
+    char acc[32];
+    dtostrf(a.acceleration.x, 3, 2, acc);
+
+    blue.write(acc);
+    blue.write("\n");
+
+    Serial.print("Accel X: "); 
+    Serial.println(acc);
   }
 }
