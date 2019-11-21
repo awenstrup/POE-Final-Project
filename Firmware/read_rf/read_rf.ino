@@ -37,12 +37,13 @@ int mappedSteering = 128; //always maps 0-255
 #define throttleOutMax 1900
 
 //Min and max values to write to steering servo through motor shield
-#define steeringOutMin 50
-#define steeringCenter 80
-#define steeringOutMax 110
+#define steeringCenter 97
+#define steeringOutMax 30
+
+const float steeringSensitivity = 0.6; //(0 means full steering at full throttle; 1 means no steering)
 
 int throttleOut = 0; //output
-int steeringOut = 80; //output
+int steeringOut = steeringCenter; //output
 
 //**************Other global definitions**************
 volatile int timer = 0;
@@ -113,8 +114,10 @@ void outputThrottle() {
 }
 
 void outputSteering() {
-  //float throttleScaler = (mappedThrottle * 1.0)/mapHigh;
-  steeringOut = steeringOutMin + (mappedSteering) * (steeringOutMax - steeringOutMin) / (255);
+  float throttleScaler = ((mapHigh-mappedThrottle) * (steeringSensitivity))/mapHigh;
+  int steeringDelta = (throttleScaler + 1 - steeringSensitivity) * (steeringOutMax) * ((mappedSteering - (mapHigh/2))/(mapHigh/2.0)) ;
+
+  steeringOut = (int) steeringCenter + steeringDelta;
 }
 
 //************Debugging*****************
