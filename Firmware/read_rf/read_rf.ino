@@ -18,7 +18,7 @@ uint32_t rawSteering = 0;
 
 //Min and max pulse lengths from reciever, used for mapping
 #define rawThrottleMin 1000
-#define rawThrottleMax 1988
+#define rawThrottleMax 1970
 #define rawThrottleDeadZone 80
 
 #define rawSteeringMin 994
@@ -33,8 +33,8 @@ int mappedSteering = 128; //always maps 0-255
 
 //**************Output values**********************************
 //Min and max values to write to DC motors through motor shield
-#define throttleOutMin 0
-#define throttleOutMax 255
+#define throttleOutMin 1100
+#define throttleOutMax 1900
 
 //Min and max values to write to steering servo through motor shield
 #define steeringOutMin 50
@@ -55,7 +55,7 @@ Servo rearMotor;
 //************Setup*****************
 void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Timer-Interrupts/
   TCCR2A = 0;// set entire TCCR2A register to 0
-  OCR2A = 244;// 64 hz
+  OCR2A = 20;// 64 hz
   // turn on CTC mode
   TCCR2A |= (1 << WGM21);
   // Set CS21 bit for 1024 prescaler
@@ -67,7 +67,7 @@ void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Time
 //*************Interupts*************
 ISR(TIMER2_COMPA_vect) {
     timer++;
-    if (timer == 3) {
+    if (timer == 1) {
       timer = 0;
       go = true;
       //digitalWrite(13, !digitalRead(13));
@@ -105,9 +105,11 @@ void mapSteering() { //Converts raw steering data to 0-255
 }
 
 void outputThrottle() {
-  int s = abs(128 - abs(128 - mappedSteering));
-  float steeringScaler = (0.5 + s/255.0); //scales throttle from 0.5 to 1x full throttle based on steering angle
-  throttleOut = (int) (mappedThrottle * 1);
+  //int s = abs(128 - abs(128 - mappedSteering));
+  //float steeringScaler = (0.5 + s/255.0); //scales throttle from 0.5 to 1x full throttle based on steering angle
+
+  float scale = (mappedThrottle - mapLow)*1.0/(mapHigh-mapLow) * (throttleOutMax - throttleOutMin);
+  throttleOut = throttleOutMin + (int)(scale);
 }
 
 void outputSteering() {
@@ -116,9 +118,12 @@ void outputSteering() {
 }
 
 //************Debugging*****************
-void printThrottle() {
-  char buff[64];
-  sprintf(buff, "Throttle Out: %d", throttleOut);
+void printOuts() {
+  char buff[32];
+  sprintf(buff, "%d", throttleOut);
+  Serial.println(buff);
+
+  sprintf(buff, "%d", steeringOut);
   Serial.println(buff);
 }
 
@@ -132,7 +137,7 @@ void setup() {
   //pinMode(13, OUTPUT);
 
   //Open serial port
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   steering.attach(steeringServoPin);
   frontMotor.attach(frontMotorPin);
@@ -143,7 +148,7 @@ void setup() {
 }
 
 void loop() {
-  if (go) {
+  if (true) {
     go = false;
     //Read raw throttle and steering values from receiver
     readThrottle();
@@ -159,11 +164,11 @@ void loop() {
   
     //Drive rear wheels
     //frontMotor.write(throttleOut);
-    rearMotor.write(throttleOut);
+    rearMotor.writeMicroseconds(throttleOut);
 
     //Update steering angle
     steering.write(steeringOut);
 
-    //lmaoprintThrottle();
+    printOuts();
   }
 }
