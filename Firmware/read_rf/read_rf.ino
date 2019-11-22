@@ -3,7 +3,7 @@
 #include <SPI.h>
 #include <Adafruit_LSM9DS1.h>
 #include <Adafruit_Sensor.h>
-#include <SoftwareSerial.h>
+#include <NeoSWSerial.h>
 #include <stdio.h>
 
 //*************Define constants and global variables***************
@@ -45,10 +45,10 @@ int mappedSteering = 128; //always maps 0-255
 #define throttleOutMax 1900
 
 //Min and max values to write to steering servo through motor shield
-#define steeringCenter 97
+#define steeringCenter 90
 #define steeringOutMax 35
 
-const float steeringSensitivity = 0.75; //(0 means full steering at full throttle; 1 means no steering)
+const float steeringSensitivity = 0.92; //(0 means full steering at full throttle; 1 means no steering)
 
 int throttleOut = 0; //output
 int steeringOut = steeringCenter; //output
@@ -61,16 +61,18 @@ sensors_event_t a, m, g, temp;
 volatile int timer = 0;
 boolean go = false;
 
+volatile boolean runAccelToBlue = false;
+
 Servo steering;
 Servo frontMotor;
 Servo rearMotor;
 
-SoftwareSerial blue(ssPin1, ssPin2);
+//blue(ssPin1, ssPin2);
 
 //************Setup*****************
 void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Timer-Interrupts/
   TCCR2A = 0;// set entire TCCR2A register to 0
-  OCR2A = 64;// 64 hz
+  OCR2A = 255;// 64 hz
   // turn on CTC mode
   TCCR2A |= (1 << WGM21);
   // Set CS21 bit for 1024 prescaler
@@ -89,9 +91,10 @@ void setupSensor()
 //*************Interupts*************
 ISR(TIMER2_COMPA_vect) {
     timer++;
-    if (timer == 1) {
+    if (timer == 10) {
       timer = 0;
       go = true;
+      runAccelToBlue = true;
       //digitalWrite(13, !digitalRead(13));
     }
 }
@@ -147,27 +150,29 @@ void readAccel() {
 }
 
 void accelToBlue() {
-  
-  char buff[32];
+  if (runAccelToBlue) {
+    runAccelToBlue = false;
+    char buff[32];
 
-  dtostrf(a.acceleration.x, 3, 2, buff);
-  blue.write(buff);
-  blue.write(", ");
-  dtostrf(a.acceleration.y, 3, 2, buff);
-  blue.write(buff);
-  blue.write(", ");
-  dtostrf(a.acceleration.z, 3, 2, buff);
-  blue.write(buff);
-  blue.write(", ");
-  dtostrf(g.gyro.x, 3, 2, buff);
-  blue.write(buff);
-  blue.write(", ");
-  dtostrf(g.gyro.y, 3, 2, buff);
-  blue.write(buff);
-  blue.write(", ");
-  dtostrf(g.gyro.z, 3, 2, buff);
-  blue.write(buff);
-  blue.write("\n");
+    dtostrf(a.acceleration.x, 3, 2, buff);
+    Serial.write(buff);
+    Serial.write(", ");
+    dtostrf(a.acceleration.y, 3, 2, buff);
+    Serial.write(buff);
+    Serial.write(", ");
+    dtostrf(a.acceleration.z, 3, 2, buff);
+    Serial.write(buff);
+    Serial.write(", ");
+    dtostrf(g.gyro.x, 3, 2, buff);
+    Serial.write(buff);
+    Serial.write(", ");
+    dtostrf(g.gyro.y, 3, 2, buff);
+    Serial.write(buff);
+    Serial.write(", ");
+    dtostrf(g.gyro.z, 3, 2, buff);
+    Serial.write(buff);
+    Serial.write("\n");
+  }
 }
 
 void accelToSerial() {
@@ -226,8 +231,8 @@ void setup() {
   //pinMode(13, OUTPUT);
 
   //Open serial port
-  Serial.begin(115200); //to and from accelerometer
-  blue.begin(9600); //to bluetooth module
+  Serial.begin(9600); //to and from accelerometer
+  //blue.begin(9600); //to bluetooth module
   lsm.begin();
 
   steering.attach(steeringServoPin);
@@ -239,8 +244,8 @@ void setup() {
 }
 
 void loop() {
-  if (go) {
-    go = false;
+  if (true) {
+    //go = false;
     
     //Read raw throttle and steering values from receiver
     readThrottle();
@@ -265,9 +270,9 @@ void loop() {
     readAccel();
 
     //Print acceleromter data
-    accelToSerial();
-    //accelToBlue();
+    accelToBlue();
     
-    printOuts();
+    
+    //printOuts();
   }
 }
