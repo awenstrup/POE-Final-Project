@@ -48,7 +48,7 @@ int mappedSteering = 128; //always maps 0-255
 #define steeringCenter 90
 #define steeringOutMax 35
 
-const float steeringSensitivity = 0.92; //(0 means full steering at full throttle; 1 means no steering)
+const float steeringSensitivity = 0.8; //(0 means full steering at full throttle; 1 means no steering)
 
 int throttleOut = 0; //output
 int steeringOut = steeringCenter; //output
@@ -72,7 +72,7 @@ Servo rearMotor;
 //************Setup*****************
 void initTimer() { //addapted from https://www.instructables.com/id/Arduino-Timer-Interrupts/
   TCCR2A = 0;// set entire TCCR2A register to 0
-  OCR2A = 255;// 64 hz
+  OCR2A = 128;// 64 hz
   // turn on CTC mode
   TCCR2A |= (1 << WGM21);
   // Set CS21 bit for 1024 prescaler
@@ -91,7 +91,7 @@ void setupSensor()
 //*************Interupts*************
 ISR(TIMER2_COMPA_vect) {
     timer++;
-    if (timer == 10) {
+    if (timer == 1) {
       timer = 0;
       go = true;
       runAccelToBlue = true;
@@ -101,24 +101,17 @@ ISR(TIMER2_COMPA_vect) {
 
 //************Helper functions******************
 void readThrottle() { 
-  rawThrottle = pulseIn(throttlePin, HIGH, 1000000);
+  rawThrottle = pulseIn(throttlePin, HIGH, 1000000); //Times out if no pulse detected in 1 second
 }
 
 void readSteering() {
-  rawSteering = pulseIn(steeringPin, HIGH, 1000000);
+  rawSteering = pulseIn(steeringPin, HIGH, 1000000); //Times out if no pulse detected in 1 second
 }
 
 void mapThrottle() { //Converts raw throttle data to 0-255
-  /*With reverse
-  int rawThrottleMidpoint = (rawThrottleMax + rawThrottleMin) / 2;
-  if (abs(rawThrottle - rawThrottleMidpoint) < rawThrottleDeadZone) rawThrottle = rawThrottleMidpoint;
-  else if (rawThrottle < rawThrottleMin) rawThrottle = rawThrottleMin;
-  else if (rawThrottle > rawThrottleMax) rawThrottle = rawThrottleMax;
-  */
-
-  /*Without reverse*/
   if (rawThrottle < rawThrottleMin + rawThrottleDeadZone) rawThrottle = rawThrottleMin;
   else if (rawThrottle > rawThrottleMax) rawThrottle = rawThrottleMax;
+  
   mappedThrottle = mapLow + (rawThrottle - rawThrottleMin) * (mapHigh - mapLow) / (rawThrottleMax - rawThrottleMin);
 }
 
@@ -130,15 +123,19 @@ void mapSteering() { //Converts raw steering data to 0-255
 }
 
 void outputThrottle() {
-  //int s = abs(128 - abs(128 - mappedSteering));
-  //float steeringScaler = (0.5 + s/255.0); //scales throttle from 0.5 to 1x full throttle based on steering angle
-
+  /*Map according to steering
+  int s = abs(128 - abs(128 - mappedSteering));
+  float steeringScaler = (0.5 + s/255.0); //scales throttle from 0.5 to 1x full throttle based on steering angle
+  */
+  
   float scale = (mappedThrottle - mapLow)*1.0/(mapHigh-mapLow) * (throttleOutMax - throttleOutMin);
   throttleOut = throttleOutMin + (int)(scale);
 }
 
 void outputSteering() {
-  float throttleScaler = (min(abs(mappedThrottle - mapHigh), abs(mappedThrottle - mapLow)) * (steeringSensitivity)) / ((mapHigh-mapLow)/2);
+  /* throttleScaler is set to the square root of the distance to full speed, between 0 and 1 */
+  double throttleScaler = (min(abs(mappedThrottle - mapHigh), abs(mappedThrottle - mapLow)) * (steeringSensitivity)) / ((mapHigh-mapLow)/2);
+  throttleScaler = sqrt(throttleScaler);
   int steeringDelta = (throttleScaler + 1 - steeringSensitivity) * (steeringOutMax) * ((mappedSteering - (mapHigh/2))/(mapHigh/2.0)) ;
 
   steeringOut = (int) steeringCenter + steeringDelta;
@@ -151,27 +148,60 @@ void readAccel() {
 
 void accelToBlue() {
   if (runAccelToBlue) {
+    /*
+    String out = "";
+    runAccelToBlue = false;
+    char buff[16];
+    
+    dtostrf(a.acceleration.x, 3, 2, buff);
+    out = out + buff + ", ";
+    dtostrf(a.acceleration.y, 3, 2, buff);
+    out = out + buff + ", ";
+    dtostrf(a.acceleration.z, 3, 2, buff);
+    out = out + buff + ", ";
+    
+    dtostrf(g.gyro.x, 3, 2, buff);
+    out = out + buff + ", ";
+    dtostrf(g.gyro.y, 3, 2, buff);
+    out = out + buff + ", ";
+    dtostrf(g.gyro.z, 3, 2, buff);
+    out = out + buff + ", ";
+    
+    ltoa(millis(), buff, 10);
+    out = out + buff;
+    Serial.println(out);
+    */
+    
     runAccelToBlue = false;
     char buff[32];
 
+    ltoa(millis(), buff, 10);
+    Serial.write(buff);
+    Serial.write(", ");
+    
     dtostrf(a.acceleration.x, 3, 2, buff);
     Serial.write(buff);
     Serial.write(", ");
-    dtostrf(a.acceleration.y, 3, 2, buff);
-    Serial.write(buff);
-    Serial.write(", ");
+    
     dtostrf(a.acceleration.z, 3, 2, buff);
     Serial.write(buff);
     Serial.write(", ");
+    
+    dtostrf(a.acceleration.y, 3, 2, buff);
+    Serial.write(buff);
+    Serial.write(", ");
+    
     dtostrf(g.gyro.x, 3, 2, buff);
     Serial.write(buff);
     Serial.write(", ");
+    
     dtostrf(g.gyro.y, 3, 2, buff);
     Serial.write(buff);
     Serial.write(", ");
+    
     dtostrf(g.gyro.z, 3, 2, buff);
     Serial.write(buff);
-    Serial.write("\n");
+    Serial.write("\n"); 
   }
 }
 
@@ -248,9 +278,9 @@ void loop() {
     //go = false;
     
     //Read raw throttle and steering values from receiver
-    readThrottle();
-    readSteering();
-
+    //readThrottle();
+    //readSteering();
+    
     //Map raw throttle and steering data
     mapThrottle();
     mapSteering();
@@ -258,7 +288,7 @@ void loop() {
     //Remap throttle and steering data to output values
     outputThrottle();
     outputSteering();
-  
+    
     //Drive rear wheels
     frontMotor.writeMicroseconds(throttleOut);
     rearMotor.writeMicroseconds(throttleOut);
@@ -268,10 +298,9 @@ void loop() {
 
     //Read accelerometer data
     readAccel();
-
+    
     //Print acceleromter data
     accelToBlue();
-    
     
     //printOuts();
   }
