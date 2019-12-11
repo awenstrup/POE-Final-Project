@@ -13,16 +13,21 @@
 #define throttlePin 8 //PB0; PCINT0; column 1 on reciever side; left stick up/down
 #define steeringPin 7 //PD6, PCINT22; column 0 on reciever; right stick left/right
 
-#define steeringServoPin 5
-#define frontMotorPin 10
+#define steeringServoPin 3
+#define frontMotorPin 5
 #define rearMotorPin 6 //set to 11 before running
 
-#define ssPin1 11
-#define ssPin2 12
+#define debugLed1 9
+
+#define steeringSensitivityPin 2
+
+//#define ssPin1 11
+//#define ssPin2 12
 
 //****************Raw input values*********************
 uint32_t rawThrottle = 0; //length of pulses
 uint32_t rawSteering = 0;
+uint32_t rawSteeringSensitivity = 0;
 
 //Min and max pulse lengths from reciever, used for mapping
 #define rawThrottleMin 1000
@@ -31,6 +36,9 @@ uint32_t rawSteering = 0;
 
 #define rawSteeringMin 994
 #define rawSteeringMax 1987
+
+#define rawSteeringSensitivityMin 1000
+#define rawSteeringSensitivityMax 2000
 
 //******************Mapping values**************
 #define mapLow 0
@@ -46,9 +54,10 @@ int mappedSteering = 128; //always maps 0-255
 
 //Min and max values to write to steering servo through motor shield
 #define steeringCenter 90
-#define steeringOutMax 35
+#define steeringOutMax 40
 
-const float steeringSensitivity = 0.8; //(0 means full steering at full throttle; 1 means no steering)
+#define steeringSensitivityMax 0.5
+float steeringSensitivity = 0.4; //(0 means full steering at full throttle; 1 means no steering)
 
 int throttleOut = 0; //output
 int steeringOut = steeringCenter; //output
@@ -101,11 +110,15 @@ ISR(TIMER2_COMPA_vect) {
 
 //************Helper functions******************
 void readThrottle() { 
-  rawThrottle = pulseIn(throttlePin, HIGH, 1000000); //Times out if no pulse detected in 1 second
+  rawThrottle = pulseIn(throttlePin, HIGH, 100000); //Times out if no pulse detected in 0.1 second
 }
 
 void readSteering() {
-  rawSteering = pulseIn(steeringPin, HIGH, 1000000); //Times out if no pulse detected in 1 second
+  rawSteering = pulseIn(steeringPin, HIGH, 100000); //Times out if no pulse detected in 0.1 second
+}
+
+void readSteeringSensitivity() {
+  rawSteeringSensitivity = pulseIn(steeringSensitivityPin, HIGH, 100000); //Times out if no pulse detected in 0.1 seconds
 }
 
 void mapThrottle() { //Converts raw throttle data to 0-255
@@ -135,10 +148,19 @@ void outputThrottle() {
 void outputSteering() {
   /* throttleScaler is set to the square root of the distance to full speed, between 0 and 1 */
   double throttleScaler = (min(abs(mappedThrottle - mapHigh), abs(mappedThrottle - mapLow)) * (steeringSensitivity)) / ((mapHigh-mapLow)/2);
-  throttleScaler = sqrt(throttleScaler);
+  throttleScaler = sq(throttleScaler);
   int steeringDelta = (throttleScaler + 1 - steeringSensitivity) * (steeringOutMax) * ((mappedSteering - (mapHigh/2))/(mapHigh/2.0)) ;
 
   steeringOut = (int) steeringCenter + steeringDelta;
+}
+
+void setSteeringSensitivity() {
+  if (rawSteeringSensitivity < rawSteeringSensitivityMin) rawSteeringSensitivity = rawSteeringSensitivityMin; 
+  else if (rawSteeringSensitivity > rawSteeringSensitivityMax) rawSteeringSensitivity = rawSteeringSensitivityMax;
+  
+  steeringSensitivity = ((rawSteeringSensitivity - rawSteeringSensitivityMin) * steeringSensitivityMax) / (rawSteeringSensitivityMax - rawSteeringSensitivityMin);
+
+  if (steeringSensitivity > 0.1) digitalWrite(debugLed1, !digitalRead(debugLed1));
 }
 
 void readAccel() {
@@ -257,8 +279,8 @@ void setup() {
   pinMode(throttlePin, INPUT);
   pinMode(steeringPin, INPUT);
 
-  //Set pin 13 as debugging LED
-  //pinMode(13, OUTPUT);
+  //Set pin 9 as debugging LED
+  pinMode(9, OUTPUT);
 
   //Open serial port
   Serial.begin(9600); //to and from accelerometer
@@ -278,8 +300,9 @@ void loop() {
     //go = false;
     
     //Read raw throttle and steering values from receiver
-    //readThrottle();
-    //readSteering();
+    readThrottle();
+    readSteering();
+    readSteeringSensitivity();
     
     //Map raw throttle and steering data
     mapThrottle();
@@ -288,6 +311,7 @@ void loop() {
     //Remap throttle and steering data to output values
     outputThrottle();
     outputSteering();
+    setSteeringSensitivity();
     
     //Drive rear wheels
     frontMotor.writeMicroseconds(throttleOut);
