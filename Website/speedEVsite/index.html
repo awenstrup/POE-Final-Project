@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html>
+<title>SpeedEV</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.2.0/css/font-awesome.min.css">
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", sans-serif}
+
+body, html {
+  height: 100%;
+  line-height: 1.8;
+}
+
+/* Full height image header */
+.bgimg-1 {
+  background-position: center;
+  background-size: cover;
+  background-image: url("https://i.imgur.com/YCb0Zo9.jpg");
+  min-height: 100%;
+}
+
+.w3-bar .w3-button {
+  padding: 16px;
+}
+</style>
+<!-- amCharts javascript sources -->
+<script type="text/javascript" src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+<script type="text/javascript" src="https://www.amcharts.com/lib/3/radar.js"></script>
+<script type="text/javascript" src="https://www.amcharts.com/lib/3/themes/dark.js"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+<!-- amCharts javascript code -->
+<script type="text/javascript">
+  AmCharts.makeChart("chartdiv",
+    {
+      "type": "radar",
+      "categoryField": "Subject",
+      "startDuration": 0.2,
+      "startEffect": "easeOutSine",
+      "handDrawThickness": 2,
+      "svgIcons": true,
+      "tapToActivate": true,
+      "theme": "dark",
+      "graphs": [
+        {
+          "alphaField": "James",
+          "balloonText": "skill",
+          "bullet": "round",
+          "bulletField": "James",
+          "bulletSizeField": "James",
+          "closeField": "James",
+          "colorField": "James",
+          "columnIndexField": "James",
+          "customBulletField": "James",
+          "dashLengthField": "James",
+          "descriptionField": "James",
+          "errorField": "James",
+          "fillColorsField": "James",
+          "gapField": "James",
+          "gapPeriod": 0,
+          "highField": "James",
+          "id": "AmGraph-1",
+          "labelColorField": "James",
+          "lineColorField": "James",
+          "lowField": "James",
+          "openField": "James",
+          "patternField": "James",
+          "valueField": "Subject",
+          "xField": "James",
+          "yField": "James"
+        },
+        {
+          "alphaField": "James",
+          "bulletField": "James",
+          "bulletSizeField": "James",
+          "closeField": "James",
+          "colorField": "James",
+          "columnIndexField": "James",
+          "customBulletField": "James",
+          "dashLengthField": "James",
+          "descriptionField": "James",
+          "errorField": "James",
+          "fillColorsField": "James",
+          "gapField": "James",
+          "gapPeriod": 0,
+          "highField": "James",
+          "id": "AmGraph-5",
+          "labelColorField": "James",
+          "lineColorField": "James",
+          "lowField": "James",
+          "openField": "James",
+          "patternField": "James",
+          "title": "graph 5",
+          "valueField": "Subject",
+          "xField": "James",
+          "yField": "James"
+        },
+        {
+          "alphaField": "James",
+          "bulletField": "James",
+          "bulletSizeField": "James",
+          "closeField": "James",
+          "colorField": "James",
+          "columnIndexField": "James",
+          "customBulletField": "James",
+          "dashLengthField": "James",
+          "descriptionField": "James",
+          "errorField": "James",
+          "fillColorsField": "James",
+          "gapField": "James",
+          "gapPeriod": 0,
+          "highField": "James",
+          "id": "AmGraph-6",
+          "labelColorField": "James",
+          "lineColorField": "James",
+          "lowField": "James",
+          "openField": "James",
+          "patternField": "James",
+          "title": "graph 6",
+          "valueField": "Adi",
+          "xField": "James",
+          "yField": "James"
+        },
+        {
+          "gapPeriod": 0,
+          "id": "AmGraph-9",
+          "title": "graph 9",
+          "valueField": "Alex"
+        },
+        {
+          "id": "AmGraph-11",
+          "title": "graph 11",
+          "valueField": "Kyle"
+        },
+        {
+          "id": "AmGraph-12",
+          "title": "graph 12",
+          "valueField": "James"
+        }
+      ],
+      "guides": [],
+      "valueAxes": [
+        {
+          "axisTitleOffset": 20,
+          "gridType": "circles",
+          "id": "ValueAxis-1",
+          "minimum": 0,
+          "axisAlpha": 0.15,
+          "showFirstLabel": false
+        }
+      ],
+      "allLabels": [],
+      "balloon": {
+        "animationDuration": 0
+      },
+      "titles": [],
+      "dataProvider": [
+        {
+          "Kyle": "9",
+          "Subject": "Mechanical",
+          "Adi": "3",
+          "Alex": "3",
+          "James": "5"
+        },
+        {
+          "Kyle": "4",
+          "Subject": "Electrical",
+          "Adi": "9",
+          "Alex": "5",
+          "James": "3"
+        },
+        {
+          "Kyle": "4",
+          "Subject": "Firmware",
+          "Adi": "4",
+          "Alex": "8.5",
+          "James": "4"
+        },
+        {
+          "Kyle": "3",
+          "Subject": "Software",
+          "Adi": "5",
+          "Alex": "5",
+          "James": "7"
+        }
+      ]
+    }
+  );
+</script>
+<body>
+
+<!-- Navbar (sit on top) -->
+<div class="w3-top">
+  <div class="w3-bar w3-white w3-card" id="myNavbar">
+    <a href="#home" class="w3-bar-item w3-button w3-wide">speedEV</a>
+    <!-- Right-sided navbar links -->
+    <div class="w3-right w3-hide-small">
+      <a href="./index.html#about" class="w3-bar-item w3-button">ABOUT</a>
+      <a href="./aboutpoe.html" class="w3-bar-item w3-button"><i class="fa fa-user"></i> POE</a>
+      <a href="./index.html#team" class="w3-bar-item w3-button"><i class="fa fa-user"></i> TEAM</a>
+      <a href="./index.html#works" class="w3-bar-item w3-button"><i class="fa fa-th"></i> INTEGRATION</a>
+      <a href="./sprints.html" class="w3-bar-item w3-button"><i class="fa fa-usd"></i> SPRINTS</a>
+      <a href="./spending.html" class="w3-bar-item w3-button"><i class="fa fa-usd"></i> COSTS</a>
+      <a href="./index.html#contact" class="w3-bar-item w3-button"><i class="fa fa-envelope"></i> CONTACT</a>
+    </div>
+    <!-- Hide right-floated links on small screens and replace them with a menu icon -->
+
+    <a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium" onclick="w3_open()">
+      <i class="fa fa-bars"></i>
+    </a>
+  </div>
+</div>
+
+<!-- Sidebar on small screens when clicking the menu icon -->
+<nav class="w3-sidebar w3-bar-block w3-black w3-card w3-animate-left w3-hide-medium w3-hide-large" style="display:none" id="mySidebar">
+  <a href="./index.html#about" class="w3-bar-item w3-button">ABOUT</a>
+  <a href="./aboutpoe.html" class="w3-bar-item w3-button"><i class="fa fa-user"></i> POE</a>
+  <a href="./index.html#team" class="w3-bar-item w3-button"><i class="fa fa-user"></i> TEAM</a>
+  <a href="./index.html#works" class="w3-bar-item w3-button"><i class="fa fa-th"></i> INTEGRATION</a>
+  <a href="./sprints.html" class="w3-bar-item w3-button"><i class="fa fa-usd"></i> SPRINTS</a>
+  <a href="./spending.html" class="w3-bar-item w3-button"><i class="fa fa-usd"></i> COSTS</a>
+  <a href="./index.html#contact" class="w3-bar-item w3-button"><i class="fa fa-envelope"></i> CONTACT</a>
+</nav>
+
+<!-- Header with full-height image -->
+<header class="bgimg-1 w3-display-container w3-grayscale-min" id="home">
+  <div class="w3-display-left w3-text-white" style="padding:48px">
+    <span class="w3-jumbo w3-hide-small">Pick up and Go!</span><br>
+    <span class="w3-xxlarge w3-hide-large w3-hide-medium">The only RC car you can drive at top speeds with no practice</span><br>
+    <span class="w3-large">The only RC car you can drive at top speeds with no practice</span>
+    <p><a href="#about" class="w3-button w3-white w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off">Learn more about the project</a></p>
+  </div> 
+  <div class="w3-display-bottomleft w3-text-grey w3-large" style="padding:24px 48px">
+    <i class="fa fa-facebook-official w3-hover-opacity"></i>
+    <i class="fa fa-instagram w3-hover-opacity"></i>
+    <i class="fa fa-snapchat w3-hover-opacity"></i>
+    <i class="fa fa-pinterest-p w3-hover-opacity"></i>
+    <i class="fa fa-twitter w3-hover-opacity"></i>
+    <i class="fa fa-linkedin w3-hover-opacity"></i>
+  </div>
+</header>
+
+<!-- About Section -->
+<div class="w3-container" style="padding:128px 16px" id="about">
+  <h3 class="w3-center">ABOUT THE PROJECT</h3>
+  <p class="w3-center w3-large">What defines speedEV?</p>
+  <div class="w3-center">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/iLufoMmHMPk" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
+  <div class="w3-row-padding w3-center" style="margin-top:64px">
+    <div class="w3-quarter">
+      <i class="fa fa-shape w3-margin-bottom w3-jumbo w3-center"></i>
+      <p class="w3-large">Easy</p>
+      <p>speedEV is an RC car designed to make 
+          driving as simple as possible. We have implemented intelligent 
+          driving controls which allow anyone to pick up a controller and enjoy driving at 
+          high speeds.
+      </p>
+    </div>
+    <div class="w3-quarter">
+      <i class="fa fa-heart w3-margin-bottom w3-jumbo"></i>
+      <p class="w3-large">Connected</p>
+      <p>speedEV sends real-time car data over bluetooth to a remote computer. The computer interprets the data, 
+        allows users to visualize it, and sends speedEV a modified control algorithm to enhance the driving experience.
+      </p>
+    </div>
+    <div class="w3-quarter">
+      <i class="fa fa-diamond w3-margin-bottom w3-jumbo"></i>
+      <p class="w3-large">Robust</p>
+      <p>speedEV is built to last. We used tough materials like ABS and aluminum that make speedEV capable
+        of enduring most conditions thrown at it. We are keen on creating an RC car that will hold up through the years.
+      </p>
+    </div>
+    <div class="w3-quarter">
+      <i class="fa fa-cog w3-margin-bottom w3-jumbo"></i>
+      <p class="w3-large">Speedy</p>
+      <p>speedEV, as the name suggests, is speedy. Its motors generate 1 horsepower and can accelerate to 28mph in under 3 seconds!</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- Promo Section - "Mechanical" -->
+<div class="w3-container w3-blue" style="padding:128px 16px" id="works">
+  <div class="w3-row-padding">
+    <div class="w3-col m6">
+      <h3>Mechanical Integration</h3>
+      <p>Our RC car contains three major mechanical systems, the chassis & mounting plates, 
+        the two drivetrains, and the steering system. Each system was designed to be easily 
+        manufacturable within the time and cost constraints. Our design decisions were made 
+        around a goal of creating an enjoyable driving experience. Analysis was performed to 
+        ensure that every component could withstand the forces they experience.
+      </p>
+      <div><button onclick="myFunction('Demo3')" class="w3-button w3-black w3-block w3-left-align" style="width:20%">
+          More Information</button>
+          <div>
+            <p><br></p>
+          </div>
+          
+          <div id="Demo3" class="w3-container w3-hide w3-black" >
+            <h3>Drivetrain:</h3>
+            <p><br>
+              The design decisions made in the drivetrain make the most impact on the driving experience. We chose to use two seperate high horsepower motors so that we were never mechanically power limited. We chose an overall gear ratio that allows us to reach a reasonably high top speed, while maintaining enough available wheel torque to break traction at almost any speed. Having a drivetrain system that is slightly overpowered for our application allows us to use our custom electronics board and integrated sensor suite to actively limit and control our motors; ensuring an easy and enjoyable driving experience at any speed.
+                </p>
+
+            <h3>Chassis: </h3>
+            <p> Our chassis and various mounting plates are all made from waterjet ABS plastic sheet. This material was chosen for its impact resistance, manufacturability, and relatively low cost. These ABS components utilize robust mortise and tenon joints. The components were designed to reduce stress concentrations and absorb impact energy, ensure our car is robust enough to be driven hard.
+              </p>
+
+            <h3>Steering: </h3>
+            <p>
+                Our steering system is a simple two-linkage mechanism to reduce slop and increase steering precision. The joint between the wheel assembly and the steering linkages utilizes a friction fit; although this requires more maintenance, it increases the longevity of our mechanical systems and reduces the need for repairs. If our front wheel hits an object, instead of the mechanical components permanently deflecting, the steering friction fit slips, absorbing the impact energy.
+            </p>          
+          <script>
+          function myFunction(id) {
+            var x = document.getElementById(id);
+            if (x.className.indexOf("w3-show") == -1) {
+              x.className += " w3-show";
+            } else {
+              x.className = x.className.replace(" w3-show", "");
+            }
+          }
+          </script></div>
+  </div>
+    </div>
+    <div class="w3-col m6">
+      <img class="w3-image w3-round-large" src="https://i.imgur.com/ucBGdvZ.png" alt="mech" width="700" height="394">
+    </div>
+  </div>
+</div>
+
+<!-- Promo Section - "Electrical" -->
+<div class="w3-container w3-orange" style="padding:128px 16px">
+  <div class="w3-row-padding">
+    <div class="w3-col m6">
+      <h3>Electrical Integration</h3>
+      <p>The electrical system on the car is what connects all of the communications and 
+        controls to the mechanical system. We opted to go for a custom PCB rather than an 
+        arduino because we could make harnessing easier and provide breakouts for better integration.</p>
+        <div><button onclick="myFunction('Demo1')" class="w3-button w3-white w3-block w3-left-align" style="width:20%">
+            More Information</button>
+            <div>
+              <p><br></p>
+            </div>
+            
+            <div id="Demo1" class="w3-container w3-hide w3-black" >
+              <p><br>
+                Some key features  of the system include a buck converter for steady and 
+                efficient power conversion from the battery. A problem we encountered early 
+                on was that an Arduino couldn’t drive all of our electrical components of a 9V 
+                battery. A buck was designed and implemented to mitigate this issue. A drawback 
+                of it includes the space it takes up compared to a cheaper but less efficient 
+                linear voltage regulator. 
+                  </p>
+              <p> Another implementation is double redundancy for the microcontroller, so if 
+                in the future, if we required more IO or wanted to send data to multiple places 
+                and have multiple control loops, it can be easily integrated as some of the 
+                brakouts for the components like the accelerometer are shared and others are 
+                isolated, like our TX and RX lines. 
+                </p>
+
+              <p>
+                What went well: <br>
+                <ul>
+                  <li>The board was capable of driving all electrical components
+                    </li>
+                  <li>Manufacturing and turnaround times were fast and relatively cheap
+                    </li>
+                  <li>Reverse protection in power input saved our board
+                    </li>
+                </ul>
+
+                What went poorly: <br>
+                <ul>
+                  <li>First revision did not work as intended
+                    </li>
+                  <li>No positively retained connectors, which led to problems when the car was subjected to harsh conditions
+                    </li>
+                </ul>
+
+                Next steps: <br>
+                <ul>
+                  <li>Be more space efficient with the board
+                    </li>
+                  <li>Reroute IO breakouts for easier harnessing (spatially conscious)
+                    </li>
+                </ul>
+              </p>
+              <h5>Takeaway: I have improved at specing components, designing PCBs and become faster
+                </h5>
+            </div>
+            
+            <script>
+            function myFunction(id) {
+              var x = document.getElementById(id);
+              if (x.className.indexOf("w3-show") == -1) {
+                x.className += " w3-show";
+              } else {
+                x.className = x.className.replace(" w3-show", "");
+              }
+            }
+            </script></div>
+    </div>
+    <div class="w3-col m6">
+      <img class="w3-image w3-round-large" src="https://i.imgur.com/v2p7mis.png" alt="elec" width="700" height="394">
+    </div>
+  </div>
+</div>
+
+<!-- Promo Section - "Firmware" -->
+<div class="w3-container w3-black" style="padding:128px 16px">
+  <div class="w3-row-padding">
+    <div class="w3-col m6">
+      <h3>Software/Firmware Integration</h3>
+      <p>The firmware on the car is what is responsible for differentiating our project from a remote control 
+        car you buy off the shelf. Rather than routing the signal from the remote control directly to a steering 
+        or driving motor, the signal is processed and altered by an on board microcontroller. The firmware is 
+        also responsible for reading accelerometer data and outputting it over bluetooth.</p>
+
+      <p>Given that we all wanted to build a remote controlled vehicle with responsive controls, we determined 
+        that data from a "control room" application would inform the design of the control loop. The current 
+        iteration of the project plots the acceleration and angular velocity of the car in real time. Building 
+        this feature enables us to build more and more features later on, making it easy to extend the platform's 
+        capabilities.</p>
+      <div><button onclick="myFunction('Demo2')" class="w3-button w3-orange w3-block w3-left-align" style="width:20%">
+          More Information</button>
+          <div>
+            <p><br></p>
+          </div>
+          
+          <div id="Demo2" class="w3-container w3-hide w3-white" >
+            <h3>FIRMWARE</h3>
+            <p><br>
+              A lot of the work of the work up front on the firmware side was in figuring out how to read data coming in from the RF receiver and transmit it back out to a motor. Once we eventually got that working, it was easy to start manipulating the signal. We developed an algorithm that allowed for a full range of steering at low seeds, while also attenuating the steering at high speeds to prevent the car from spinning out. We drove the car several times while we tuned the function, ultimately arriving on a parabolic attenuation curve with an offset, such that 100% steering was achieved at no throttle, and only 40% of the maximum steering angle was delivered at full throttle.
+              </p><p>
+              While we were able to implement a successful steering assist feature, we also hoped to develop one that could adapt in real time to accelerometer data. If the car sensed it was rotating faster than possible while maintaining traction, the car would automatically reduce the steering angle, and increase the steering attenuation factor. Unfortunately, the accelerometer data was so noisy that we could not do this reliably, and we could not sample at a high enough rate to use a rolling average of data points. If we had more time, we would have liked to debug this issue and implement accelerometer data into our steering algorithm.
+              </p><p>
+              Additionally, we would have liked to implement torque vectoring based on acceleration data. Not only did the accelerometer inhibit our ability to do this, but we also had trouble getting our Electronic Speed Controllers (ESCs) to work reliably with a 14.8V supply, so each motor got it’s own battery, and torque vectoring would not have enabled us to increase power delivery to the front/rear wheels as we had hoped.
+                </p>
+            <p>
+              What went well: <br>
+              <ul>
+                <li>The code was written such that when it came time to add new features or change functionality, it was really easy
+                  </li>
+                <li>We were finished quickly enough to iteratively test and develop a steering assist algorithm
+                  </li>
+              </ul>
+
+              What went poorly: <br>
+              <ul>
+                <li>We spent way to much time in the middle of the project trying to output PWM to the ESCs before asking for help, and wasted a lot of time.
+                  </li>
+              </ul>
+
+              Takeaways: <br>
+              <ul>
+                <li>If we can’t solve a problem in 2-3 hours, ask for help, even if we still have new ideas to try. Having another set of eyes is really valuable.
+                  </li>
+                <li>Having a working MVP weeks ahead of time is SO useful for testing, validation, and optimization
+                  </li>
+              </ul>
+              <br>
+            </p>
+
+            <h3>SOFTWARE</h3>
+            <p><br>
+              I began with key requirements in mind before choosing the technologies we would use. The system had to be easily expandable, near real time, and quick to implement. After analyzing a few potential solutions, I decided to have a bluetooth connection between the Arduino and an Android phone. The Android phone would then push data through websocket to an online webapp.
+            </p><p>
+              The use of bluetooth allowed for an android app to control the car. The use of websockets allowed for any web application to send information to the android device, which can then change the state of the car. This opened up the possibility to have self driving programs run on the android device and send throttle and steering commands to the Arduino, or tune driver assist parameters from a web application. These are all features we would love to implement in the future.
+            </p><p>
+              The current web application is relatively simple. It takes in data from a websocket and plots the data using a javascript library called Plotly.js.
+            </p>
+            <p>
+              What went well: <br>
+              <ul>
+                <li>We focused heavily on achieving our individual learning goals and based most of our project and engineering decisions off of that. I was able to learn a lot about new web technologies and build one of my first websites.
+                  </li>
+              </ul>
+
+              What went poorly: <br>
+              <ul>
+                <li>Project scoping and everyone agreeing on what the MVP is could have happened more quickly and been more clear. From the beginning, we didn't have a super clear definition of the MVP to work towards.
+                  </li>
+                  <li>
+                      We struggled with focusing energy on the most valuable problems at any given time. In this context, a valuable problem is one that once solved, would move us closer to our MVP by the largest amount.
+                  </li>
+              </ul>
+
+              Takeaways: <br>
+              <ul>
+                <li>I learned that having a clear definition for a project to work off of is very important in a team environment.
+                </li>
+              </ul>
+            </p>
+          </div>
+          
+          <script>
+          function myFunction(id) {
+            var x = document.getElementById(id);
+            if (x.className.indexOf("w3-show") == -1) {
+              x.className += " w3-show";
+            } else {
+              x.className = x.className.replace(" w3-show", "");
+            }
+          }
+          </script></div>
+    </div>
+    <div class="w3-col m6">
+      <img class="w3-image w3-round-large" src="https://i.imgur.com/6NTLsip.png" alt="firm" width="700" height="394">
+    </div>
+  </div>
+</div>
+
+<!-- Team Section -->
+<div class="w3-container" style="padding:128px 16px" id="team">
+  <h3 class="w3-center">THE TEAM</h3>
+  <p class="w3-center w3-large">Some cool guys</p>
+  <div class="w3-row-padding w3-grayscale" style="margin-top:64px">
+    <div class="w3-col l3 m6 w3-margin-bottom">
+      <div class="w3-card">
+        <img src="https://i.imgur.com/u11TmgV.jpg" alt="James" style="width:100%">
+        <div class="w3-container">
+          <h3>James Ho</h3>
+          <p class="w3-opacity">Project Manager / Software Integration</p>
+          <p>Enjoys going to bed at 9pm when there is lots of work to be done.</p>
+          <p><button class="w3-button w3-light-grey w3-block"><a href="#contact"><i class="fa fa-envelope"></i> Contact</a></button></p>
+        </div>
+      </div>
+    </div>
+    <div class="w3-col l3 m6 w3-margin-bottom">
+      <div class="w3-card">
+        <img src="https://i.imgur.com/pGO2OHo.jpg" alt="Kyle" style="width:100%">
+        <div class="w3-container">
+          <h3>Kyle McCracken</h3>
+          <p class="w3-opacity">Mechanical Integration</p>
+          <p>Enjoys spending copious amounts of time re-machining components after breaking them.</p>
+          <p><button class="w3-button w3-light-grey w3-block"><a href="#contact"><i class="fa fa-envelope"></i> Contact</a></button></p>
+        </div>
+      </div>
+    </div>
+    <div class="w3-col l3 m6 w3-margin-bottom">
+      <div class="w3-card">
+        <img src="https://i.imgur.com/F3Fsdhn.jpg" alt="Adi" style="width:100%">
+        <div class="w3-container">
+          <h3>Aditya Sudhakar</h3>
+          <p class="w3-opacity">Electrical Integration</p>
+          <p>Enjoys forgetting heatshrink every time he solders wire.</p>
+          <p><button class="w3-button w3-light-grey w3-block"><a href="#contact"><i class="fa fa-envelope"></i> Contact</a></button></p>
+        </div>
+      </div>
+    </div>
+    <div class="w3-col l3 m6 w3-margin-bottom">
+      <div class="w3-card">
+        <img src="https://i.imgur.com/88efTbd.jpg" alt="Alex" style="width:100%">
+        <div class="w3-container">
+          <h3><br><br>Alexander Wenstrup</h3>
+          <p class="w3-opacity">Firmware Integration</p>
+          <p>Enjoys plugging everything in backwards, often frying important things.</p>
+          <p><button class="w3-button w3-light-grey w3-block"><a href="#contact"><i class="fa fa-envelope"></i> Contact</a></button></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Promo Section "Statistics" -->
+<div class="w3-container w3-row w3-center w3-dark-grey w3-padding-64">
+  <div class="w3-quarter">
+    <span class="w3-xxlarge">15+</span>
+    <br>Cans of Redbull
+  </div>
+  <div class="w3-quarter">
+    <span class="w3-xxlarge">20+</span>
+    <br>Connectors Made
+  </div>
+  <div class="w3-quarter">
+    <span class="w3-xxlarge">80+</span>
+    <br>Hours Debugging
+  </div>
+  <div class="w3-quarter">
+    <span class="w3-xxlarge">1</span>
+    <br>Sexy RC Car
+  </div>
+</div>
+
+<!-- Work Section -->
+<div class="w3-container w3-black" style="padding:15px 16px" id="skills">
+  <h3 class="w3-center">OUR SKILLS</h3>
+  <p class="w3-center w3-large">Subjects & Overlap</p>
+
+</div>
+<div id="chartdiv" style="width: 100%; height: 400px; background-color: black;" ></div>
+
+
+
+<!-- Modal for full size images on click-->
+<div id="modal01" class="w3-modal w3-black" onclick="this.style.display='none'">
+  <span class="w3-button w3-xxlarge w3-black w3-padding-large w3-display-topright" title="Close Modal Image">×</span>
+  <div class="w3-modal-content w3-animate-zoom w3-center w3-transparent w3-padding-64">
+    <img id="img01" class="w3-image">
+    <p id="caption" class="w3-opacity w3-large"></p>
+  </div>
+</div>
+
+
+<!-- Contact Section -->
+<div class="w3-container w3-light-grey" style="padding:128px 16px" id="contact">
+  <h3 class="w3-center">CONTACT US</h3>
+  <p class="w3-center w3-large">Lets get in touch. Send us a message:</p>
+  <div style="margin-top:48px" class="w3-center">
+    <p><i class="fa fa-map-marker fa-fw w3-large w3-margin-right"></i> Needham, MA, US</p>
+    <p><i class="fa fa-envelope fa-fw w3-large w3-margin-right"> </i> James: jho@olin.edu</p>
+    <p><i class="fa fa-envelope fa-fw w3-large w3-margin-right"> </i> Kyle: kmccracken@olin.edu</p>
+    <p><i class="fa fa-envelope fa-fw w3-large w3-margin-right"> </i> Adi: asudhakar@olin.edu</p>
+    <p><i class="fa fa-envelope fa-fw w3-large w3-margin-right"> </i> Alex: awenstrup@olin.edu</p>
+
+    <br>
+    <!-- Image of location/map -->
+    <img src="http://www.olin.edu/sites/default/files/olin_1.jpg" class="w3-image w3-greyscale" style="width:50%;margin-top:48px">
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="w3-center w3-black w3-padding-64">
+  <a href="#home" class="w3-button w3-light-grey w3-center"><i class="fa fa-arrow-up w3-center"></i>up</a>
+  <div class="w3-xlarge w3-section">
+    <i class="fa fa-facebook-official w3-hover-opacity"></i>
+    <i class="fa fa-instagram w3-hover-opacity"></i>
+    <i class="fa fa-snapchat w3-hover-opacity"></i>
+    <i class="fa fa-pinterest-p w3-hover-opacity"></i>
+    <i class="fa fa-twitter w3-hover-opacity"></i>
+    <i class="fa fa-linkedin w3-hover-opacity"></i>
+  </div>
+</footer>
+ 
+<script>
+// Modal Image Gallery
+function onClick(element) {
+  document.getElementById("img01").src = element.src;
+  document.getElementById("modal01").style.display = "block";
+  var captionText = document.getElementById("caption");
+  captionText.innerHTML = element.alt;
+}
+
+
+// Toggle between showing and hiding the sidebar when clicking the menu icon
+var mySidebar = document.getElementById("mySidebar");
+
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+  } else {
+    mySidebar.style.display = 'block';
+  }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+    mySidebar.style.display = "none";
+}
+</script>
+
+</body>
+</html>
